@@ -1,12 +1,10 @@
 import io
-import uuid
 from pathlib import Path
+from typing import Optional
 
 import httpx
 import pandas as pd
 from fastapi import HTTPException
-
-from app.services.parser_service import is_excel_file
 
 
 def download_blob_bytes(file_url: str) -> bytes:
@@ -39,15 +37,49 @@ def get_excel_sheets_from_bytes(file_bytes: bytes, filename: str) -> list[str]:
         raise HTTPException(status_code=500, detail=f"Unable to read Excel sheets from blob: {exc}") from exc
 
 
+def read_blob_to_dataframe(file_url: str, filename: str, sheet_name: Optional[str] = None) -> pd.DataFrame:
+    file_bytes = download_blob_bytes(file_url)
+    suffix = Path(filename).suffix.lower()
+    content = io.BytesIO(file_bytes)
+
+    try:
+        if suffix == ".csv":
+            return pd.read_csv(content)
+
+        if suffix in {".xlsx", ".xls"}:
+            if sheet_name:
+                return pd.read_excel(content, sheet_name=sheet_name)
+            return pd.read_excel(content)
+
+        raise HTTPException(status_code=400, detail=f"Unsupported blob file type: {suffix}")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to parse blob file: {exc}") from exc
+
+
+def get_blob_columns(file_url: str, filename: str, sheet_name: Optional[str] = None) -> dict:
+    df = read_blob_to_dataframe(
+        file_url=file_url,
+        filename=filename,
+        sheet_name=sheet_name,
+    )
+
+    columns = [str(col).strip() for col in df.columns.tolist()]
+
+    return {
+        "status": "success",
+        "filename": filename,
+        "sheet_name": sheet_name,
+        "columns": columns,
+    }
+
+
 def build_blob_file_metadata(file_url: str, filename: str) -> dict:
     file_bytes = download_blob_bytes(file_url)
     file_type = get_file_type_from_filename(filename)
     sheets = get_excel_sheets_from_bytes(file_bytes, filename)
-    file_id = str(uuid.uuid4())
 
     return {
         "status": "success",
-        "file_id": file_id,
         "filename": filename,
         "file_type": file_type,
         "sheets": sheets,

@@ -48,6 +48,48 @@ class ProcessFileRequest(BaseModel):
         return self
 
 
+class ProcessBlobRequest(BaseModel):
+    file_url: str
+    filename: str
+
+
+class ProcessBlobResponse(BaseModel):
+    status: str = "success"
+    filename: str
+    file_type: str
+    sheets: List[str] = Field(default_factory=list)
+    has_multiple_sheets: bool = False
+
+
+class BlobColumnsRequest(BaseModel):
+    file_url: str
+    filename: str
+    sheet_name: Optional[str] = None
+
+
+class BlobColumnsResponse(BaseModel):
+    status: str = "success"
+    filename: str
+    sheet_name: Optional[str] = None
+    columns: List[str] = Field(default_factory=list)
+
+
+class ProcessBlobFileRequest(BaseModel):
+    file_url: str
+    filename: str
+    sheet_name: Optional[str] = None
+    field_mapping: Dict[str, str] = Field(default_factory=dict)
+    custom_fields: Dict[str, str] = Field(default_factory=dict)
+    options: ProcessOptions = Field(default_factory=ProcessOptions)
+
+    @model_validator(mode="after")
+    def validate_email_mapping(self):
+        email_column = self.field_mapping.get("email")
+        if not email_column or not str(email_column).strip():
+            raise ValueError("field_mapping must include a valid 'email' column mapping.")
+        return self
+
+
 class ProcessSummary(BaseModel):
     total_rows_input: int
     rows_after_split: int
@@ -74,16 +116,3 @@ class ForwardProcessedResponse(BaseModel):
 class ErrorResponse(BaseModel):
     status: str = "error"
     message: str
-
-class ProcessBlobRequest(BaseModel):
-    file_url: str
-    filename: str
-
-
-class ProcessBlobResponse(BaseModel):
-    status: str = "success"
-    file_id: str
-    filename: str
-    file_type: str
-    sheets: List[str] = Field(default_factory=list)
-    has_multiple_sheets: bool = False

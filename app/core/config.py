@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ✅ Use /tmp for Vercel (fallback to local for dev)
+# Use /tmp for Vercel (fallback to local for dev)
 if os.getenv("VERCEL"):
     STORAGE_DIR = Path("/tmp/storage")
 else:
@@ -15,7 +15,7 @@ PROCESSED_DIR = STORAGE_DIR / "processed"
 ALLOWED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 PREVIEW_ROW_LIMIT = 20
 
-# ✅ Ensure directories exist (safe now)
+# Ensure directories exist
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 

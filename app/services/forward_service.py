@@ -2,11 +2,11 @@ import requests
 from fastapi import HTTPException
 
 from app.core.config import INGESTION_URL
-from app.schemas.file_schemas import ProcessFileRequest
+from app.schemas.file_schemas import ProcessBlobFileRequest, ProcessFileRequest
 from app.services.process_service import build_full_processed_payload
 
 
-def forward_processed_payload(payload: ProcessFileRequest) -> dict:
+def forward_processed_payload(payload: ProcessFileRequest | ProcessBlobFileRequest) -> dict:
     full_payload = build_full_processed_payload(payload)
     records_sent = len(full_payload.get("data", []))
 
