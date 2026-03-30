@@ -14,7 +14,8 @@ from app.services.file_service import get_file_path, save_uploaded_file
 from app.services.forward_service import forward_processed_payload
 from app.services.parser_service import get_columns_from_file, get_excel_sheets, is_excel_file
 from app.services.process_service import process_uploaded_file
-
+from app.schemas.file_schemas import ProcessBlobRequest, ProcessBlobResponse
+from app.services.blob_service import build_blob_file_metadata
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
@@ -72,3 +73,11 @@ def process_file(payload: ProcessFileRequest):
 def forward_processed_file(payload: ProcessFileRequest):
     result = forward_processed_payload(payload)
     return ForwardProcessedResponse(**result)
+
+@router.post("/process-blob", response_model=ProcessBlobResponse)
+def process_blob(payload: ProcessBlobRequest):
+    result = build_blob_file_metadata(
+        file_url=payload.file_url,
+        filename=payload.filename,
+    )
+    return ProcessBlobResponse(**result)

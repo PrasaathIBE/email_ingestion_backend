@@ -74,3 +74,16 @@ class ForwardProcessedResponse(BaseModel):
 class ErrorResponse(BaseModel):
     status: str = "error"
     message: str
+
+class ProcessBlobRequest(BaseModel):
+    file_url: str
+    filename: str
+
+
+class ProcessBlobResponse(BaseModel):
+    status: str = "success"
+    file_id: str
+    filename: str
+    file_type: str
+    sheets: List[str] = Field(default_factory=list)
+    has_multiple_sheets: bool = False

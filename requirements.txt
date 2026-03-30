@@ -6,3 +6,4 @@ python-multipart
 pydantic
 xlrd
 requests
+httpx
