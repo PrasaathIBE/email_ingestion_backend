@@ -19,4 +19,4 @@ PREVIEW_ROW_LIMIT = 20
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-INGESTION_URL = "https://email-management-database.vercel.app/ingest"
+INGESTION_URL = "https://email-management-database.onrender.com/ingest"
